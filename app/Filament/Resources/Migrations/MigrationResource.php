@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\MigrationRecords;
+namespace App\Filament\Resources\Migrations;
 
-use App\Filament\Resources\MigrationRecords\Pages\ManageMigrationRecords;
-use App\Models\MigrationRecord;
+use App\Filament\Resources\Migrations\Pages\ManageMigrations;
+use App\Models\Migration;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -17,37 +19,51 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use UnitEnum;
 
-class MigrationRecordResource extends Resource
+class MigrationResource extends Resource
 {
-    protected static ?string $model = MigrationRecord::class;
+    protected static ?string $model = Migration::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCircleStack;
 
     protected static ?string $recordTitleAttribute = 'migration';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = 'Basis Data';
 
     protected static ?string $modelLabel = 'Migration';
 
     protected static ?string $pluralModelLabel = 'Migrations';
 
-    protected static ?string $navigationLabel = 'Data Migrations';
+    protected static ?string $navigationLabel = 'Data Migration';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('migration')
-                    ->label('Nama Migration')
-                    ->placeholder('contoh: 2026_07_29_085443_create_subjects_table')
-                    ->columnSpanFull()
+                    ->label('Nama File Migration')
+                    ->placeholder('contoh: 2026_07_29_085611_create_answers_table')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+
                 TextInput::make('batch')
                     ->label('Batch')
+                    ->helperText('Menandakan migration ini dijalankan pada urutan/kelompok eksekusi ke berapa.')
                     ->numeric()
                     ->required()
-                    ->default(1),
+                    ->minValue(1),
+            ]);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextEntry::make('migration')
+                    ->label('Nama File Migration')
+                    ->columnSpanFull(),
+                TextEntry::make('batch')
+                    ->label('Batch'),
             ]);
     }
 
@@ -55,13 +71,13 @@ class MigrationRecordResource extends Resource
     {
         return $table
             ->recordTitleAttribute('migration')
-            ->defaultSort('id', 'desc')
+            ->defaultSort('id', 'asc')
             ->columns([
                 TextColumn::make('id')
-                    ->label('ID')
+                    ->label('No')
                     ->sortable(),
                 TextColumn::make('migration')
-                    ->label('Nama Migration')
+                    ->label('Nama File Migration')
                     ->searchable()
                     ->wrap(),
                 TextColumn::make('batch')
@@ -73,6 +89,7 @@ class MigrationRecordResource extends Resource
                 //
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
@@ -86,7 +103,7 @@ class MigrationRecordResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageMigrationRecords::route('/'),
+            'index' => ManageMigrations::route('/'),
         ];
     }
 }

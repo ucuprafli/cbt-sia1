@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignIdFor(Question::class)->constrained()->cascadeOnDelete();
-            $table->char('option', 1); // A, B, C, atau D
+            // $table->char('letter');
             $table->string('text');
             $table->boolean('is_correct')->default(false);
             $table->boolean('is_active')->default(true);
