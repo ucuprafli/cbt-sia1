@@ -6,7 +6,6 @@ use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\ValidationException;
-use Override;
 
 class Login extends BaseLogin
 {
