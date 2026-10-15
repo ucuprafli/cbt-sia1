@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Exams\Schemas;
 
+use App\ExamTypeEnum;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
@@ -15,9 +17,16 @@ class ExamForm
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->label('Nama Ujian')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
+                Select::make('type')
+                    ->label('Jenis Ujian')
+                    ->options(ExamTypeEnum::class)
+                    ->default(ExamTypeEnum::Quiz->value)
+                    ->native(false)
+                    ->required(),
                 TextInput::make('duration')
                     ->label('Durasi (menit)')
                     ->numeric()

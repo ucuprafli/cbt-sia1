@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Question extends Model
@@ -13,21 +14,29 @@ class Question extends Model
 
     protected $guarded = [];
 
-    protected $casts = ['is_active' => 'boolean'];
+    protected $casts = [
+        'is_active' => 'boolean',
+        'score' => 'integer',
+    ];
 
-    // relasi invers ke model subject
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
     }
 
-    // relasi 1 to many dengan model answer
     public function answers(): HasMany
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class)->orderBy('id');
     }
 
-    // Mengembalikan daftar jawaban dengan label huruf A, B, C, D... berdasarkan urutan tampil. Ini TIDAK menyimpan huruf ke database
+    // jawaban yang benar (dipakai untuk penilaian ujian nanti)
+    public function correctAnswer(): HasOne
+    {
+        return $this->hasOne(Answer::class)->where('is_correct', true);
+    }
+
+    // Daftar jawaban dengan label huruf A, B, C... berdasarkan urutan tampil.
+    // Huruf TIDAK disimpan di database.
     public function getAnswersWithLetterAttribute()
     {
         $letters = ['A', 'B', 'C', 'D', 'E', 'F'];

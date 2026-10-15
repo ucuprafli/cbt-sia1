@@ -21,6 +21,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Test\Resources\Exams\Pages\ExamResult;
+
 
 class ExamResource extends Resource
 {
@@ -32,6 +34,8 @@ class ExamResource extends Resource
 
     protected static ?string $navigationLabel = 'Sesi Ujian';
 
+    protected static ?int $navigationSort = 1;
+
 protected static ?string $modelLabel = 'Ujian';
 protected static ?string $pluralModelLabel = 'Daftar Ujian';
 
@@ -41,6 +45,7 @@ protected static ?string $pluralModelLabel = 'Daftar Ujian';
             ->modifyQueryUsing(function (Builder $query) {
                 $now = now();
                 $query
+                    ->with('subjects')
                     ->where('is_available', true)
                     ->where(function (Builder $query) use ($now) {
                         $query
@@ -61,6 +66,12 @@ protected static ?string $pluralModelLabel = 'Daftar Ujian';
                 TextColumn::make('title')
                     ->label('Ujian')
                     ->searchable(),
+                TextColumn::make('type')
+                    ->label('Jenis')
+                    ->badge(),
+                TextColumn::make('subjects_list')
+                    ->label('Mata Pelajaran')
+                    ->getStateUsing(fn ($record) => $record->subjects->pluck('name')->join(', ')),
                 TextColumn::make('duration')
                     ->label('Durasi')
                     ->numeric()
@@ -93,10 +104,11 @@ protected static ?string $pluralModelLabel = 'Daftar Ujian';
     }
 
     public static function getPages(): array
-    {
-        return [
-            'index' => ManageExams::route('/'),
-            'mulai' => StartingExam::route('/{exam}/mulai')
-        ];
-    }
+{
+    return [
+        'index' => ManageExams::route('/'),
+        'mulai' => StartingExam::route('/{exam}/mulai'),
+        'hasil' => ExamResult::route('/{exam}/hasil'),
+    ];
+}
 }

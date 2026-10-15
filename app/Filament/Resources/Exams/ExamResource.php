@@ -26,6 +26,12 @@ class ExamResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
+    protected static ?string $navigationLabel = 'Daftar Ujian';
+
+    protected static ?string $modelLabel = 'Ujian';
+
+    protected static ?string $pluralModelLabel = 'Daftar Ujian';
+
     public static function form(Schema $schema): Schema
     {
         return ExamForm::configure($schema);
