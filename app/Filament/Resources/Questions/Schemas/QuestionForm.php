@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Questions\Schemas;
 
+use Closure;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -22,6 +23,7 @@ class QuestionForm
                     ->columnSpanFull()
                     ->schema([
                         Select::make('subject_id')
+                            ->label('Mata Pelajaran')
                             ->relationship('subject', 'name')
                             ->required(),
 
@@ -32,10 +34,9 @@ class QuestionForm
                             ->default(1)
                             ->minValue(0),
 
-                        // Bagian Soal
                         RichEditor::make('payload')
                             ->label('Pertanyaan')
-                            ->fileAttachmentsDisk('publik')
+                            ->fileAttachmentsDisk('public')
                             ->fileAttachmentsDirectory('question-images')
                             ->required()
                             ->columnSpanFull(),
@@ -57,14 +58,27 @@ class QuestionForm
                         Repeater::make('answers')
                             ->relationship()
                             ->label('Pilihan Jawaban')
-                            ->addActionLabel('Tambah Pilihan baru')
-                            ->reorderable()
+                            ->addActionLabel('Tambah pilihan baru')
+                            ->reorderable(false)
                             ->columns(2)
                             ->minItems(2)
+                            ->maxItems(6)
+                            ->rules([
+                                fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                                    $jumlahBenar = collect($value)
+                                        ->filter(fn ($item) => ! empty($item['is_correct']))
+                                        ->count();
+
+                                    if ($jumlahBenar !== 1) {
+                                        $fail('Harus ada tepat satu pilihan yang ditandai sebagai jawaban benar.');
+                                    }
+                                },
+                            ])
                             ->schema([
                                 TextInput::make('text')
                                     ->label('Deskripsi pilihan')
                                     ->required()
+                                    ->maxLength(255)
                                     ->columnSpanFull(),
 
                                 Toggle::make('is_active')
@@ -72,7 +86,8 @@ class QuestionForm
                                     ->default(true),
 
                                 Toggle::make('is_correct')
-                                    ->label('Jawaban benar'),
+                                    ->label('Jawaban benar')
+                                    ->default(false),
                             ]),
                     ]),
             ]);

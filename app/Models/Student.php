@@ -6,6 +6,7 @@ use App\StudentStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 class Student extends Model
@@ -27,4 +28,10 @@ class Student extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function examAttempts(): HasMany
+{
+    return $this->hasMany(ExamAttempt::class);
+}
+
 }
